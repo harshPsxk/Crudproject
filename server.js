@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient } = require('mongodb');
+const mongoose = require('mongoose');
 const employeeRoutes = require('./routes/employeeRoutes');
 const managerRoutes = require('./routes/managerRoutes');
 
@@ -14,16 +14,10 @@ const mongoUrl = 'mongodb+srv://bloodyj:bloodyjungle@cluster0.4m6omfz.mongodb.ne
 const dbName = 'EmployeeManagement'; // Replace with your database name
 
 // Connect to MongoDB
-MongoClient.connect(mongoUrl, { useUnifiedTopology: true })
-  .then((client) => {
+mongoose
+  .connect(mongoUrl + dbName, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
     console.log('Connected to MongoDB');
-    const db = client.db(dbName);
-
-    // Middleware to pass db object to route handlers
-    app.use((req, res, next) => {
-      req.db = db;
-      next();
-    });
 
     // Connect the employee routes
     app.use('/api', employeeRoutes);
@@ -34,12 +28,6 @@ MongoClient.connect(mongoUrl, { useUnifiedTopology: true })
     // Start the server
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
-    });
-
-    // Close the MongoDB connection when the server shuts down
-    process.on('SIGINT', () => {
-      client.close();
-      process.exit();
     });
   })
   .catch((err) => {

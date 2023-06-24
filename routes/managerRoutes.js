@@ -1,14 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const { ObjectId } = require('mongodb');
+const Manager = require('../models/Manager.js'); // Update the file name to 'Manager.js'
 
+// CRUD routes for managers
 
-
-// CRUD routes for departments
-
-// Additional query route ( will search according with departmentName, categoryName, location, salary)
-// GET /api/departments/query
-router.get('/departments', (req, res) => {
+// Additional query route (will search according to departmentName, categoryName, location, salary)
+// GET /api/managers/query
+router.get('/managers', (req, res) => {
   const { departmentName, categoryName, location, salary } = req.query;
   const query = {};
 
@@ -28,93 +27,72 @@ router.get('/departments', (req, res) => {
     query.salary = { $eq: parseInt(salary) };
   }
 
-  const departmentsCollection = req.db.collection('departments');
-
-  departmentsCollection
-    .find(query)
-    .toArray()
-    .then((departments) => {
-      res.json(departments);
+  Manager.find(query)
+    .then((managers) => {
+      res.json(managers);
     })
     .catch((err) => {
-      console.error('Error retrieving departments:', err);
-      res.status(500).json({ error: 'Failed to retrieve departments' });
+      console.error('Error retrieving Department:', err);
+      res.status(500).json({ error: 'Failed to retrieve Department' });
     });
 });
 
-// POST /api/departments
-router.post('/departments', (req, res) => {
-  const departmentData = req.body;
-  const employeeID = departmentData.employeeID; // Get the employeeID from the request body
+// POST /api/managers
+router.post('/managers', (req, res) => {
+  const managerData = req.body;
+  const employeeID = managerData.employeeID; // Get the employeeID from the request body
 
   // Convert the employeeID to ObjectId
-  departmentData.employeeID = new ObjectId(employeeID);
+  managerData.employeeID = new ObjectId(employeeID);
 
-  const departmentsCollection = req.db.collection('departments');
-
-  departmentsCollection
-    .insertOne(departmentData)
-    .then((result) => {
-      const insertedId = result.insertedId;
-      departmentsCollection
-        .findOne({ _id: insertedId })
-        .then((insertedDepartment) => {
-          console.log('Inserted document:', insertedDepartment);
-          res.status(201).json(insertedDepartment);
-        })
-        .catch((error) => {
-          console.error('Error retrieving inserted department:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        });
+  Manager.create(managerData)
+    .then((createdManager) => {
+      console.log('Created Department:', createdManager);
+      res.status(201).json(createdManager);
     })
     .catch((error) => {
-      console.error('Error creating department:', error);
+      console.error('Error creating Department:', error);
       res.status(500).json({ error: 'Internal server error' });
     });
 });
 
-
-// PUT /api/departments/:id
-router.put('/departments/:id', (req, res) => {
+// PUT /api/managers/:id
+router.put('/managers/:id', (req, res) => {
   const { id } = req.params;
   const { departmentName, categoryName, location, salary } = req.body;
-  const departmentsCollection = req.db.collection('departments');
 
-  departmentsCollection
-    .updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          departmentName,
-          categoryName,
-          location,
-          salary,
-        },
+  Manager.findByIdAndUpdate(
+    id,
+    { departmentName, categoryName, location, salary },
+    { new: true }
+  )
+    .then((updatedManager) => {
+      if (updatedManager) {
+        res.json({ message: 'Department updated successfully' });
+      } else {
+        res.status(404).json({ error: 'Department not found' });
       }
-    )
-    .then(() => {
-      res.json({ message: 'Department updated successfully' });
     })
     .catch((err) => {
-      console.error('Error updating department:', err);
-      res.status(500).json({ error: 'Failed to update department' });
+      console.error('Error updating Department:', err);
+      res.status(500).json({ error: 'Failed to update Department' });
     });
 });
 
-
-// DELETE /api/departments/:id
-router.delete('/departments/:id', (req, res) => {
+// DELETE /api/managers/:id
+router.delete('/managers/:id', (req, res) => {
   const { id } = req.params;
-  const departmentsCollection = req.db.collection('departments');
-
-  departmentsCollection
-    .deleteOne({ _id: new ObjectId(id) })
-    .then(() => {
-      res.json({ message: 'Department deleted successfully' });
+  Manager.findByIdAndDelete(id)
+    .then((deletedManager) => {
+      if (deletedManager) {
+        res.json({ message: 'Department deleted successfully' });
+      } else {
+        res.status(404).json({ error: 'Department not found' });
+      }
     })
     .catch((err) => {
-      console.error('Error deleting department:', err);
-      res.status(500).json({ error: 'Failed to delete department' });
+      console.error('Error deleting Department:', err);
+      res.status(500).json({ error: 'Failed to delete Department' });
     });
 });
 

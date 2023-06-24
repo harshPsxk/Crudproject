@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { ObjectId } = require('mongodb');
+const Employee = require('../models/Employee.js'); // Import the Employee model
 
 // GET /api/employees
 router.get('/employees', (req, res) => {
@@ -23,11 +24,7 @@ router.get('/employees', (req, res) => {
     query.hobbies = { $in: Array.isArray(hobbies) ? hobbies : [hobbies] };
   }
 
-  const employeesCollection = req.db.collection('employees');
-
-  employeesCollection
-    .find(query)
-    .toArray()
+  Employee.find(query)
     .then((employees) => {
       res.json(employees);
     })
@@ -37,26 +34,13 @@ router.get('/employees', (req, res) => {
     });
 });
 
-
 // POST /api/employees
 router.post('/employees', (req, res) => {
   const employeeData = req.body;
-  const employeesCollection = req.db.collection('employees');
-
-  employeesCollection
-    .insertOne(employeeData)
-    .then((result) => {
-      const insertedId = result.insertedId;
-      employeesCollection
-        .findOne({ _id: insertedId })
-        .then((insertedEmployee) => {
-          console.log('Inserted document:', insertedEmployee);
-          res.status(201).json(insertedEmployee);
-        })
-        .catch((error) => {
-          console.error('Error retrieving inserted employee:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        });
+  Employee.create(employeeData)
+    .then((createdEmployee) => {
+      console.log('Created employee:', createdEmployee);
+      res.status(201).json(createdEmployee);
     })
     .catch((error) => {
       console.error('Error creating employee:', error);
@@ -68,15 +52,18 @@ router.post('/employees', (req, res) => {
 router.put('/employees/:id', (req, res) => {
   const { id } = req.params;
   const { firstName, lastName, gender, hobbies } = req.body;
-  const employeesCollection = req.db.collection('employees');
 
-  employeesCollection
-    .updateOne(
-      { _id: new ObjectId(id) }, // Use new ObjectId(id) instead of ObjectId(id)
-      { $set: { firstName, lastName, gender, hobbies } }
-    )
-    .then(() => {
-      res.json({ message: 'Employee updated successfully' });
+  Employee.findByIdAndUpdate(
+    id,
+    { firstName, lastName, gender, hobbies },
+    { new: true }
+  )
+    .then((updatedEmployee) => {
+      if (updatedEmployee) {
+        res.json({ message: 'Employee updated successfully' });
+      } else {
+        res.status(404).json({ error: 'Employee not found' });
+      }
     })
     .catch((err) => {
       console.error('Error updating employee:', err);
@@ -87,12 +74,13 @@ router.put('/employees/:id', (req, res) => {
 // DELETE /api/employees/:id
 router.delete('/employees/:id', (req, res) => {
   const { id } = req.params;
-  const employeesCollection = req.db.collection('employees');
-
-  employeesCollection
-    .deleteOne({ _id: new ObjectId(id) })
-    .then(() => {
-      res.json({ message: 'Employee deleted successfully' });
+  Employee.findByIdAndDelete(id)
+    .then((deletedEmployee) => {
+      if (deletedEmployee) {
+        res.json({ message: 'Employee deleted successfully' });
+      } else {
+        res.status(404).json({ error: 'Employee not found' });
+      }
     })
     .catch((err) => {
       console.error('Error deleting employee:', err);
