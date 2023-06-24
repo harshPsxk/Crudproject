@@ -1,5 +1,4 @@
-# ipangram
-Project 
+# i-Pangram
 
 CRUD login system for employees and managers.
 
@@ -10,7 +9,7 @@ CRUD login system for employees and managers.
 
 ### Installation
 1. Clone the repository:
-   git clone https://github.com/harshxjh/ipangram.git
+   git clone https://github.com/harshPsxk/ipangram.git
 
 2. Navigate to the project directory:
    cd ipangram
@@ -23,15 +22,13 @@ To run the project, you can use the following scripts:
 
 - Start the project:
    npm start
-
-- Start the project with nodemon (for an automatic restart on changes):
+- Start the project with nodemon (for the automatic restart on changes):
    npm run server
-
+  
 ## License
 
 This project is licensed under the MIT License.
 
 ---
 
-GitHub Repository: https://github.com/harshxjh/ipangram
-**
+GitHub Repository: https://github.com/harshPsxk/ipangram
