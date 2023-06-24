@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const employeeRoutes = require('./routes/employeeRoutes');
 const managerRoutes = require('./routes/managerRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 const port = 3000;
@@ -24,6 +25,9 @@ mongoose
 
     // Connect the manager routes
     app.use('/api', managerRoutes);
+
+    // Connect the authentication routes
+    app.use('/api', authRoutes);
 
     // Start the server
     app.listen(port, () => {
