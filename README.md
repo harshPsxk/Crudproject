@@ -25,6 +25,8 @@ To run the project, you can use the following scripts:
 - Start the project with nodemon (for the automatic restart on changes):
    npm run server
   
+Please note that the code is present in the "master" branch of this repository.
+
 ## License
 
 This project is licensed under the MIT License.
