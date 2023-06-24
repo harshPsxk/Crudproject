@@ -8,7 +8,7 @@ const { ObjectId } = require('mongodb');
 
 // GET /api/departments
 router.get('/departments', (req, res) => {
-  const departmentsCollection = db.collection('departments');
+  const departmentsCollection = req.db.collection('departments');
 
   departmentsCollection
     .find({})
